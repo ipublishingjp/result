@@ -1,6 +1,8 @@
 <?php
 namespace Snscripts\Result;
 
+use Exception;
+
 class Result
 {
     protected $success = false;
@@ -8,6 +10,11 @@ class Result
     protected $message = '';
     protected $errors = [];
     protected $extras = [];
+
+    /**
+     * @var ?Exception
+     */
+    protected $exception = null;
 
     const
         SUCCESS = true,
@@ -36,9 +43,9 @@ class Result
      * @param array $extras
      * @return Result $Result
      */
-    public static function success($code = '', $message = '', $errors = [], $extras = [])
+    public static function success(string $code = '', string $message = '', array $errors = [], array $extras = [])
     {
-        return self::loadResult(self::SUCCESS, $code, $message, $errors, $extras);
+        return self::loadResult(self::SUCCESS, $code, $message, $errors, $extras, null);
     }
 
     /**
@@ -48,11 +55,12 @@ class Result
      * @param string $message
      * @param array $errors
      * @param array $extras
+     * @param ?Exception $exception
      * @return Result $Result
      */
-    public static function fail($code = '', $message = '', $errors = [], $extras = [])
+    public static function fail(string $code = '', string $message = '', array $errors = [], array $extras = [], ?Exception $exception = null)
     {
-        return self::loadResult(self::FAIL, $code, $message, $errors, $extras);
+        return self::loadResult(self::FAIL, $code, $message, $errors, $extras, $exception);
     }
 
     /**
@@ -63,9 +71,10 @@ class Result
      * @param string $message
      * @param array $errors
      * @param array $extras
+     * @param ?Exception $exception
      * @return Result $Result
      */
-    protected static function loadResult($status, $code, $message, $errors, $extras)
+    protected static function loadResult(bool $status, string $code, string $message, array $errors, array $extras, ?Exception $exception)
     {
         $Result = new static($status);
 
@@ -85,6 +94,10 @@ class Result
             $Result->setExtras($extras);
         }
 
+        if ($exception !== null) {
+            $Result->setException($exception);
+        }
+
         return $Result;
     }
 
@@ -93,7 +106,7 @@ class Result
      *
      * @param $success bool
      */
-    public function __construct($success)
+    public function __construct(bool $success)
     {
         $this->success = $success;
     }
@@ -103,7 +116,7 @@ class Result
      *
      * @return bool
      */
-    public function isSuccess()
+    public function isSuccess(): bool
     {
         return ($this->success === self::SUCCESS);
     }
@@ -113,7 +126,7 @@ class Result
      *
      * @return bool
      */
-    public function isFail()
+    public function isFail(): bool
     {
         return ($this->success === self::FAIL);
     }
@@ -124,7 +137,7 @@ class Result
      * @param string $code
      * @return Result $this
      */
-    public function setCode($code)
+    public function setCode(string $code)
     {
         $this->code = $code;
         return $this;
@@ -135,7 +148,7 @@ class Result
      *
      * @return string $code
      */
-    public function getCode()
+    public function getCode(): string
     {
         return $this->code;
     }
@@ -146,7 +159,7 @@ class Result
      * @param string $message
      * @return Result $this
      */
-    public function setMessage($message)
+    public function setMessage(string $message)
     {
         $this->message = $message;
         return $this;
@@ -157,7 +170,7 @@ class Result
      *
      * @return string $message
      */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
@@ -167,7 +180,7 @@ class Result
      *
      * @return array $errors
      */
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
@@ -178,12 +191,8 @@ class Result
      * @param array $errors
      * @return Result $this
      */
-    public function setErrors($errors)
+    public function setErrors(array $errors)
     {
-        if (! is_array($errors)) {
-            throw new \InvalidArgumentException('Result->setErrors() must be passed an array');
-        }
-
         $this->errors = $errors;
         return $this;
     }
@@ -210,7 +219,7 @@ class Result
      *
      * @return array $extras
      */
-    public function getExtras()
+    public function getExtras(): array
     {
         return $this->extras;
     }
@@ -221,7 +230,7 @@ class Result
      * @param string $key
      * @return mixed
      */
-    public function getExtra($key)
+    public function getExtra(string $key)
     {
         if (array_key_exists($key, $this->extras)) {
             return $this->extras[$key];
@@ -237,7 +246,7 @@ class Result
      * @param mixed $data
      * @return Result $this
      */
-    public function setExtra($key, $data)
+    public function setExtra(string $key, $data)
     {
         $this->extras[$key] = $data;
         return $this;
@@ -246,16 +255,34 @@ class Result
     /**
      * set all extra data
      *
-     * @param string $extras
+     * @param array $extras
      * @return Result $this
      */
-    public function setExtras($extras)
+    public function setExtras(array $extras)
     {
-        if (! is_array($extras)) {
-            throw new \InvalidArgumentException('Result->setExtras() must be passed an array');
-        }
-
         $this->extras = $extras;
+        return $this;
+    }
+
+    /**
+     * get the extra data
+     *
+     * @return ?Exception
+     */
+    public function getException(): ?Exception
+    {
+        return $this->exception;
+    }
+
+    /**
+     * set exception
+     *
+     * @param ?Exception $exception
+     * @return Result $this
+     */
+    public function setException($exception)
+    {
+        $this->exception = $exception;
         return $this;
     }
 }

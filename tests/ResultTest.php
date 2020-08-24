@@ -1,9 +1,10 @@
 <?php
 namespace Snscripts\Result\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Snscripts\Result\Result;
 
-class ResultTest extends \PHPUnit_Framework_TestCase
+class ResultTest extends TestCase
 {
     public function testCanCreateInstance()
     {
@@ -122,6 +123,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /*
     public function testSetErrorsThrowsExceptionWhenStringPassed()
     {
         $this->setExpectedException('InvalidArgumentException');
@@ -141,6 +143,7 @@ class ResultTest extends \PHPUnit_Framework_TestCase
             new \StdClass
         );
     }
+    */
 
     public function testSetExtraCorrectly()
     {
@@ -186,26 +189,6 @@ class ResultTest extends \PHPUnit_Framework_TestCase
                 'bar' => 'foo',
                 'foobar' => 'barfoo'
             ])
-        );
-    }
-
-    public function testSetExtrasThrowsExceptionWhenStringPassed()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $Result = new Result(Result::SUCCESS);
-
-        $Result->setExtras('key', 'string should fail');
-    }
-
-    public function testSetExtrasThrowsExceptionWhenObjectPassed()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $Result = new Result(Result::SUCCESS);
-
-        $Result->setExtras(
-            new \StdClass
         );
     }
 
@@ -256,6 +239,35 @@ class ResultTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(
             Result::NOT_FOUND,
             $Result->getCode()
+        );
+    }
+
+    public function testSetExceptionCorrectly()
+    {
+        $Result = new Result(Result::FAIL);
+
+        $this->assertInstanceOf(
+            'Snscripts\Result\Result',
+            $Result->setException(new \Exception())
+        );
+    }
+
+    public function testGetExceptionReturnsTheCorrectCode()
+    {
+        $Result = new Result(Result::FAIL);
+
+        $exception = new \Exception();
+
+        $Result->setException($exception);
+        $this->assertSame(
+            $exception,
+            $Result->getException()
+        );
+
+        $Result->setException(null);
+        $this->assertSame(
+            null,
+            $Result->getException()
         );
     }
 

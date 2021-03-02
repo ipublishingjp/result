@@ -9,6 +9,11 @@
             "name": "Mike Barlow",
             "email": "mike@mikebarlow.co.uk",
             "role": "Developer"
+        },
+        {
+            "name": "Yukimune Takagi",
+            "email": "takagi@ipublishing.jp",
+            "role": "Developer"
         }
     ],
     "require": {
